@@ -382,34 +382,7 @@ A server may return:
 
 All are valid.
 
-## 17. Errors and Unsupported Input
-
-Handling of malformed, unsupported, or unsuccessful requests is implementation-defined.
-
-A server may:
-
-- return ordinary plaintext output
-- return a not-found style response
-- return an error message
-- close the connection without a response
-
-This specification defines no protocol-level error format.
-
-## 18. Limits
-
-This specification does not define fixed maximum lengths for:
-
-- requests
-- targets
-- flags
-- path depth
-- responses
-
-Any such limits are implementation-defined.
-
-A server may reject requests that exceed local limits.
-
-## 19. Implementation Freedom
+## 17 Implementation Freedom
 
 This protocol only defines the externally visible syntax and transport behavior.
 
@@ -426,7 +399,17 @@ A server may produce response text from:
 
 This specification does not require any particular storage model or backend design.
 
-## 20. Examples
+These rules also appliy to malformed, unsupported, or unsuccessful requests. Since errors are just a plaintext response, and the daemon responds in plaintext anyways, how it chooses to respond is beyond the scope of the protocol. A server may:
+
+- return ordinary plaintext output
+- return a not-found style response
+- return an error message
+- close the connection without a response
+
+This specification defines no protocol-level error format or fixed maximum lengths for requests/responses. Any such limits are implementation-defined.
+
+
+## 18. Examples
 
 ### Empty request
 
@@ -470,7 +453,7 @@ URI: `fingers://example.com/alice?PLAN&mode=full`
 
 Request sent: `/PLAN /mode=full alice<CRLF>`
 
-## 21. Summary
+## 19. Summary
 
 `fingers` is:
 
