@@ -1,13 +1,8 @@
 # fingers
 
-A small TLS-only plaintext request/response protocol inspired by Finger.
+A small TLS-only plaintext request/response protocol inspired by [Finger](https://en.wikipedia.org/wiki/Finger_(protocol)).
 
-This repository contains the working draft specification for `fingers://`.
-
-## Files
-
-- `fingers-protocol-draft.md` — current draft spec
-- `LICENSE` — license for the spec text
+You can read a working draft of the `fingers://` specification at [fingers-protocol-draft.md](fingers-protocol-draft.md).
 
 ## Status
 
