@@ -40,7 +40,7 @@ It does not standardize server internals. A conforming daemon may use plain file
 
 ## Examples
 
-This spec is intended to enable finger-style passing of encrypted data around like this:
+This spec is intended to enable Finger-style passing of encrypted plaintext data around like this:
 
 #### Command:
 
