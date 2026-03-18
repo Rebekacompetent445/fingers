@@ -38,16 +38,9 @@ This draft standardizes only the protocol surface:
 It does not standardize server internals. A conforming daemon may use plain files, scripts, CGI, templates, databases, or any other local mechanism.
 
 
-## Notes
-
-- The authority host is the only network endpoint and TLS identity.
-- Additional path segments are request components only.
-- Optional client certificates may be used for implementation-defined identity-aware behavior.
-
 ## Examples
 
-An array of flags, variables & connection details would correlate across a `fingers://` ecosystem like this:
-
+This spec is intended to enable finger-style passing of encrypted data around like this:
 
 #### Command:
 
