@@ -22,7 +22,7 @@ The protocol is intentionally small and syntax-focused. It defines transport, re
 - no status codes
 - no length fields
 - URI scheme: `fingers://`
-- default port: `8179`
+- default port: `:8179`
 
 
 ## Scope
@@ -44,15 +44,21 @@ It does not standardize server internals. A conforming daemon may use plain file
 - Additional path segments are request components only.
 - Optional client certificates may be used for implementation-defined identity-aware behavior.
 
-## Example
+## Examples
 
-URI:
+#### Command:
+
+```text
+fingers /PLAN /mode=full alice@example.com
+```
+
+#### URI:
 
 ```text
 fingers://example.com/alice?PLAN&mode=full
 ```
 
-Request sent:
+#### Request Text:
 
 ```text
 /PLAN /mode=full alice<CRLF>
