@@ -16,7 +16,6 @@ This specification defines only:
 - reserved syntax
 
 This specification does not define:
-
 - backend behavior
 - file layout
 - CGI behavior
@@ -24,8 +23,6 @@ This specification does not define:
 - account systems
 - login systems
 - required output formats beyond plaintext framing
-
-
 
 ## 2. Basic Model
 
@@ -43,8 +40,6 @@ There is no multi-request session on one connection.
 
 There are no protocol headers, status codes, or length fields.
 
-
-
 ## 3. URI Scheme
 
 The URI scheme is `fingers://`.
@@ -61,15 +56,15 @@ Examples:
 - `fingers://example.com/user`
 - `fingers://example.com/host1/user?PLAN`
 
-
-
 ## 4. Authority Host and TLS Scope
 
 The URI authority host is the only network endpoint for the request.
 
 The client connects only to the authority host.
 
-The server certificate is validated only against the authority host.
+The authority host is the only TLS peer for the transaction.
+
+The server certificate, if validated, is validated only against the authority host.
 
 If client certificates are used, they are also scoped only to the authority host.
 
@@ -80,12 +75,9 @@ Example:
 `fingers://example.com/host2/host1/target`
 
 In this URI:
-
 - `example.com` is the network endpoint
-- `example.com` is the TLS identity
+- `example.com` is the TLS identity scope
 - `host2`, `host1`, and `target` are request components only
-
-
 
 ## 5. TLS Requirements
 
@@ -97,15 +89,33 @@ There is no STARTTLS mode.
 
 This protocol is TLS-only.
 
+This specification does not require use of any particular public certificate authority system.
+
+Implementations may use:
+
+- CA-signed certificates
+- self-signed certificates
+- locally trusted certificates
+- pinned certificates
+- private CA certificates
+
+This allows use on public networks, local networks, private networks, bare IP addresses, and other hobbyist or experimental deployments.
+
+The authority host identifies the TLS peer for the transaction.
+
+How that peer is trusted is implementation-defined.
+
+A client or server may use public CA validation, private CA validation, certificate pinning, self-signed certificates, TOFU-style trust, or any other local trust model.
+
 A server may request a client certificate during the TLS handshake.
 
 A client may present a client certificate if it is configured to do so.
 
-If a client certificate is presented, the server may use it for implementation-defined identity-aware behavior.
+A client certificate may be CA-signed, self-signed, locally trusted, pinned, or otherwise accepted according to local policy.
+
+If a client certificate is presented, the server may use it for implementation-defined identity-aware, personalized, authenticated, or session-like behavior.
 
 This specification defines no cookies, tokens, or protocol-level login flow.
-
-
 
 ## 6. Character Encoding
 
@@ -117,8 +127,6 @@ This includes:
 - response text
 
 However, some fields are syntactically restricted to smaller character sets.
-
-
 
 ## 7. Request Syntax
 
@@ -141,15 +149,11 @@ Examples:
 - multiple flags and target: `/PLAN /mode=full user<CRLF>`
 - flags only: `/PLAN /index=users<CRLF>`
 
-
-
 ## 8. Request Terminator
 
 Clients must terminate the request line with CRLF.
 
 The request is exactly one line.
-
-
 
 ## 9. Response Framing
 
@@ -170,8 +174,6 @@ This specification defines no:
 - length fields
 - terminator markers
 
-
-
 ## 10. URI Normalization
 
 Trailing slashes do not change meaning.
@@ -187,8 +189,6 @@ These are also equivalent:
 - `fingers://example.com/target/`
 
 Likewise, extra trailing slashes do not create extra empty path segments.
-
-
 
 ## 11. Allowed Characters
 
@@ -239,8 +239,6 @@ Flag values may contain only:
 - dash (`-`)
 - underscore (`_`)
 
-
-
 ## 12. Percent-Encoding
 
 Percent-encoding is not part of this specification.
@@ -256,7 +254,6 @@ There is no percent-decoding step.
 
 What appears in the URI is what is parsed.
 
-
 ## 13. Path and Target Mapping
 
 The path is interpreted positionally.
@@ -266,15 +263,12 @@ The final path segment is the target.
 Any earlier path segments are emitted before it using `@` syntax.
 
 Path segments are emitted in reverse order using @ syntax to preserve compatibility with legacy Finger forwarding conventions, where the chain reads right-to-left (e.g., user@host1@host2):
-
 - `fingers://example.com` maps to `<CRLF>`
 - `fingers://example.com/user` maps to `user<CRLF>`
 - `fingers://example.com/host1/user` maps to `user@host1<CRLF>`
 - `fingers://example.com/host2/host1/user` maps to `user@host1@host2<CRLF>`
 
 This specification assigns no required meaning to those earlier segments beyond syntax. A server may interpret that text however it wants. One server may treat it as a forwarding chain. Another may treat it as a local taxonomy or lookup key. Both are valid.
-
-
 
 ## 14. Flags
 
@@ -338,8 +332,6 @@ Examples:
 - `?PLAN&PLAN` keeps only `/PLAN`
 - `?mode=full&mode=short` keeps only `/mode=full`
 
-
-
 ## 15. Reserved Flags
 
 All single-character flags are reserved.
@@ -348,15 +340,13 @@ This includes all single letters and all single digits.
 
 Implementations must not assign their own permanent meaning to single-character flags unless a future protocol revision allows it.
 
-The flag `/W` is reserved for historical purposes & adapting legacy finger utilities.
+The flag `/W` is reserved for historical purposes and adapting legacy finger utilities.
 
 This specification does not define a required meaning for `/W`.
 
 If a server responds to `/W`, how it responds is implementation-defined.
 
 Multi-character flags are implementation-defined unless a future protocol revision defines them.
-
-
 
 ## 16. Empty Requests and Flag-Only Requests
 
@@ -392,8 +382,6 @@ A server may return:
 
 All are valid.
 
-
-
 ## 17. Errors and Unsupported Input
 
 Handling of malformed, unsupported, or unsuccessful requests is implementation-defined.
@@ -406,8 +394,6 @@ A server may:
 - close the connection without a response
 
 This specification defines no protocol-level error format.
-
-
 
 ## 18. Limits
 
@@ -422,8 +408,6 @@ This specification does not define fixed maximum lengths for:
 Any such limits are implementation-defined.
 
 A server may reject requests that exceed local limits.
-
-
 
 ## 19. Implementation Freedom
 
@@ -441,8 +425,6 @@ A server may produce response text from:
 - any other local mechanism
 
 This specification does not require any particular storage model or backend design.
-
-
 
 ## 20. Examples
 
@@ -487,8 +469,6 @@ Request sent: `/mode=full alice<CRLF>`
 URI: `fingers://example.com/alice?PLAN&mode=full`
 
 Request sent: `/PLAN /mode=full alice<CRLF>`
-
-
 
 ## 21. Summary
 
