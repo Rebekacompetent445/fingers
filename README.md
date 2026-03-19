@@ -1,4 +1,4 @@
-# fingers
+# fingers://
 
 A small TLS-only plaintext request/response protocol inspired by [Finger](https://en.wikipedia.org/wiki/Finger_(protocol)). The concept of Finger has great potential as a low-bandwidth API endpoint. We want to secure it and give it some room to breathe, while making it easy to import nearly 50 years of forgotten Finger-based utilities.
 
