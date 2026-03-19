@@ -263,11 +263,13 @@ What appears in the URI is what is parsed.
 
 ## 13. Target and Relay Mapping
 
+If no target path is present, the emitted request is empty.
+
 If a target is present, the final path segment is the terminal target.
 
 Any earlier path segments are relay hosts.
 
-The authority host is always the outermost relay host.
+The authority host is included only when a target is present. In that case, it is always the outermost relay host.
 
 The emitted target expression is built in this exact order:
 
@@ -282,9 +284,10 @@ In other words:
 
 Examples:
 
-- `fingers://example.com/alice` maps to `alice@example.com`
-- `fingers://example.net/example.com/alice` maps to `alice@example.com@example.net`
-- `fingers://example.org/example.net/example.com/alice` maps to `alice@example.com@example.net@example.org`
+- `fingers://example.com` produces a request string of `<CRLF>`
+- `fingers://example.com/alice` produces `alice<CRLF>`
+- `fingers://example.net/example.com/alice` produces `alice@example.com<CRLF>`
+- `fingers://example.org/example.net/example.com/alice` produces `alice@example.com@example.net<CRLF>`
 
 The authority host is always the network endpoint and TLS peer.
 
@@ -321,13 +324,13 @@ Example:
 
 maps to:
 
-`/PLAN alice@example.com`
+`/PLAN alice<CRLF>`
 
 ### 14.2 Variable Flag
 
 A variable flag looks like `/flag=value`.
 
-URI form: `?flag=value`
+URI form: `?flag=value<CRLF>`
 
 Example:
 
@@ -335,7 +338,7 @@ Example:
 
 maps to:
 
-`/mode=full alice@example.com`
+`/mode=full alice<CRLF>`
 
 ### 14.3 Multiple Flags
 
@@ -347,7 +350,7 @@ Example:
 
 maps to:
 
-`/PLAN /mode=full alice@example.com@example.net`
+`/PLAN /mode=full alice@example.com<CRLF>`
 
 ### 14.4 Duplicate Flags
 
@@ -395,7 +398,7 @@ Example:
 
 maps to:
 
-`/PLAN`
+`/PLAN<CRLF>`
 
 The meaning of empty requests and flag-only requests is implementation-defined.
 
@@ -448,53 +451,53 @@ Any such limits are implementation-defined.
 
 URI: `fingers://example.com`
 
-Request sent: ``
+Request sent: `<CRLF>`
 
 ### Simple request
 
 URI: `fingers://example.com/alice`
 
-Request sent: `alice@example.com`
+Request sent: `alice<CRLF>`
 
 ### One inner relay
 
 URI: `fingers://example.net/example.com/alice`
 
-Request sent: `alice@example.com@example.net`
+Request sent: `alice@example.com<CRLF>`
 
 ### Two inner relays
 
 URI: `fingers://example.org/example.net/example.com/alice`
 
-Request sent: `alice@example.com@example.net@example.org`
+Request sent: `alice@example.com@example.net<CRLF>`
 
 ### Bare flag
 
 URI: `fingers://example.com/alice?PLAN`
 
-Request sent: `/PLAN alice@example.com`
+Request sent: `/PLAN alice<CRLF>`
 
 ### Variable flag
 
 URI: `fingers://example.com/alice?mode=full`
 
-Request sent: `/mode=full alice@example.com`
+Request sent: `/mode=full alice<CRLF>`
 
 ### Multiple flags with relay target
 
 URI: `fingers://example.net/example.com/alice?PLAN&mode=full`
 
-Request sent: `/PLAN /mode=full alice@example.com@example.net`
+Request sent: `/PLAN /mode=full alice@example.com<CRLF>`
 
 ### Mapping pattern
 
 General pattern:
 
-`fingers://relayN/.../relay2/relay1/target`
+`fingers://host/relayN/.../relay2/relay1/target?flag=var`
 
 maps to:
 
-`target@relay1@relay2@...@relayN`
+`/flag=var target@relay1@relay2@...@relayN<CRLF>`
 
 ## 19. Summary
 
