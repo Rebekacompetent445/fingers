@@ -429,7 +429,7 @@ This specification does not require any particular storage model or backend desi
 
 These rules also apply to malformed, unsupported, or unsuccessful requests.
 
-Since the protocol has no error format and all responses are plaintext, how the daemon handles them is beyond the scope of this specification.
+Since the protocol has no error format and all responses are plaintext, how the server handles them is beyond the scope of this specification.
 
 A server may:
 
