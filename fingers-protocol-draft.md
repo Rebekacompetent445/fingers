@@ -16,6 +16,7 @@ This specification defines only:
 - reserved syntax
 
 This specification does not define:
+
 - backend behavior
 - file layout
 - CGI behavior
@@ -53,8 +54,9 @@ Examples:
 - `fingers://example.com`
 - `fingers://example.com:8179`
 - `fingers://example.com:9443`
-- `fingers://example.com/user`
-- `fingers://example.com/host1/user?PLAN`
+- `fingers://example.com/alice`
+- `fingers://example.com/alice@example.net`
+- `fingers://example.com/alice@example.net@example.org?PLAN`
 
 ## 4. Authority Host and TLS Scope
 
@@ -68,16 +70,17 @@ The server certificate, if validated, is validated only against the authority ho
 
 If client certificates are used, they are also scoped only to the authority host.
 
-Path segments do not identify additional network hosts. They are only request components.
+Everything after the authority host is request text only.
 
 Example:
 
-`fingers://example.com/host2/host1/target`
+`fingers://relay.example/alice@example.net@example.org`
 
 In this URI:
-- `example.com` is the network endpoint
-- `example.com` is the TLS identity scope
-- `host2`, `host1`, and `target` are request components only
+
+- `relay.example` is the network endpoint
+- `relay.example` is the TLS identity scope
+- `alice@example.net@example.org` is the request target
 
 ## 5. TLS Requirements
 
@@ -101,9 +104,7 @@ Implementations may use:
 
 This allows use on public networks, local networks, private networks, bare IP addresses, and other hobbyist or experimental deployments.
 
-The authority host identifies the TLS peer for the transaction.
-
-How that peer is trusted is implementation-defined.
+The authority host identifies the TLS peer for the transaction. How that peer is trusted is implementation-defined.
 
 A client or server may use public CA validation, private CA validation, certificate pinning, self-signed certificates, TOFU-style trust, or any other local trust model.
 
@@ -143,11 +144,13 @@ The server reads one request line only.
 
 Examples:
 
-- empty request: `<CRLF>`
-- target only: `user<CRLF>`
-- flag and target: `/PLAN user<CRLF>`
-- multiple flags and target: `/PLAN /mode=full user<CRLF>`
-- flags only: `/PLAN /index=users<CRLF>`
+- empty request: ``
+- target only: `alice`
+- target with one relay: `alice@example.net`
+- target with two relays: `alice@example.net@example.org`
+- flag and target: `/PLAN alice`
+- multiple flags and target: `/PLAN /mode=full alice@example.net`
+- flags only: `/PLAN /index=users`
 
 ## 8. Request Terminator
 
@@ -176,19 +179,21 @@ This specification defines no:
 
 ## 10. URI Normalization
 
-Trailing slashes do not change meaning.
+A trailing slash after the authority host does not change meaning.
 
 These are equivalent:
 
 - `fingers://example.com`
 - `fingers://example.com/`
 
-These are also equivalent:
+When a target is present, the path contains exactly one target component.
 
-- `fingers://example.com/target`
-- `fingers://example.com/target/`
+These are equivalent:
 
-Likewise, extra trailing slashes do not create extra empty path segments.
+- `fingers://example.com/alice@example.net`
+- `fingers://example.com/alice@example.net/`
+
+Extra trailing slashes do not create extra empty path segments.
 
 ## 11. Allowed Characters
 
@@ -210,9 +215,9 @@ If a port is present, it must be decimal digits only.
 
 Example: `:8179`
 
-### 11.3 Path Segments
+### 11.3 Target
 
-Path segments may contain only:
+The target may contain only:
 
 - letters
 - digits
@@ -220,6 +225,19 @@ Path segments may contain only:
 - underscore (`_`)
 - period (`.`)
 - tilde (`~`)
+- at sign (`@`)
+
+The at sign is a literal relay-chain operator inside the target.
+
+A target must not begin with `@` and must not end with `@`.
+
+Empty relay components are invalid.
+
+Examples:
+
+- `alice`
+- `alice@example.net`
+- `alice@example.net@example.org`
 
 ### 11.4 Flag Names
 
@@ -246,7 +264,7 @@ Percent-encoding is not part of this specification.
 The percent sign (`%`) is not valid in:
 
 - authority hosts
-- path segments
+- targets
 - flag names
 - flag values
 
@@ -254,18 +272,28 @@ There is no percent-decoding step.
 
 What appears in the URI is what is parsed.
 
-## 13. Path and Target Mapping
+## 13. Target and Relay Mapping
 
-The path is interpreted positionally. The final path segment is the target.
+The URI path, if present, contains one target string.
 
-Path segments are emitted in reverse order using @ syntax to preserve compatibility with legacy Finger forwarding conventions, where the chain reads right-to-left (e.g., user@host1@host2):
-- `fingers://example.com` maps to `<CRLF>`
-- `fingers://example.com/user` maps to `user<CRLF>`
-- `fingers://example.com/host1/user` maps to `user@host1<CRLF>`
-- `fingers://example.com/host2/host1/user` maps to `user@host1@host2<CRLF>`
+That target string is emitted directly into the request line after any flags.
 
-This specification assigns no required meaning to those earlier segments beyond syntax. A server may interpret that text however it wants. One server may treat it as a forwarding chain. Another may treat it as a local taxonomy or lookup key. Both are valid.
+Relay chaining, if used, is expressed inside the target using `@`, following the original Finger model.
 
+Examples:
+
+- `fingers://example.com` maps to ``
+- `fingers://example.com/alice` maps to `alice`
+- `fingers://example.com/alice@example.net` maps to `alice@example.net`
+- `fingers://example.com/alice@example.net@example.org` maps to `alice@example.net@example.org`
+
+This specification assigns no required meaning to relay chains beyond syntax.
+
+A server may treat `alice@example.net@example.org` as an actual relay request.
+
+Another server may treat it as a local lookup key.
+
+Both are valid.
 
 ## 14. Flags
 
@@ -286,11 +314,11 @@ URI form: `?FLAG`
 
 Example:
 
-`fingers://example.com/user?PLAN`
+`fingers://example.com/alice?PLAN`
 
 maps to:
 
-`/PLAN user<CRLF>`
+`/PLAN alice`
 
 ### 14.2 Variable Flag
 
@@ -300,11 +328,11 @@ URI form: `?flag=value`
 
 Example:
 
-`fingers://example.com/user?mode=full`
+`fingers://example.com/alice?mode=full`
 
 maps to:
 
-`/mode=full user<CRLF>`
+`/mode=full alice`
 
 ### 14.3 Multiple Flags
 
@@ -312,11 +340,11 @@ Multiple flags are written in the URI query by joining them with `&`.
 
 Example:
 
-`fingers://example.com/user?PLAN&mode=full`
+`fingers://example.com/alice@example.net?PLAN&mode=full`
 
 maps to:
 
-`/PLAN /mode=full user<CRLF>`
+`/PLAN /mode=full alice@example.net`
 
 ### 14.4 Duplicate Flags
 
@@ -354,7 +382,7 @@ Examples:
 - `fingers://example.com`
 - `fingers://example.com/`
 
-Both map to `<CRLF>`.
+Both map to ``.
 
 A flag-only request is also valid.
 
@@ -364,7 +392,7 @@ Example:
 
 maps to:
 
-`/PLAN<CRLF>`
+`/PLAN`
 
 The meaning of empty requests and flag-only requests is implementation-defined.
 
@@ -396,15 +424,20 @@ A server may produce response text from:
 
 This specification does not require any particular storage model or backend design.
 
-These rules also apply to malformed, unsupported, or unsuccessful requests. Since the protocol has no error format and all responses are plaintext, how the daemon handles them is beyond the scope of this specification. A server may:
+These rules also apply to malformed, unsupported, or unsuccessful requests.
+
+Since the protocol has no error format and all responses are plaintext, how the daemon handles them is beyond the scope of this specification.
+
+A server may:
 
 - return ordinary plaintext output
 - return a not-found style response
 - return an error message
 - close the connection without a response
 
-This specification defines no protocol-level error format or fixed maximum lengths for requests/responses. Any such limits are implementation-defined.
+This specification defines no protocol-level error format or fixed maximum lengths for requests or responses.
 
+Any such limits are implementation-defined.
 
 ## 18. Examples
 
@@ -412,43 +445,43 @@ This specification defines no protocol-level error format or fixed maximum lengt
 
 URI: `fingers://example.com`
 
-Request sent: `<CRLF>`
+Request sent: ``
 
 ### Target request
 
 URI: `fingers://example.com/alice`
 
-Request sent: `alice<CRLF>`
+Request sent: `alice`
 
-### Taxonomy-style path
+### Relay request
 
-URI: `fingers://example.com/people/alice`
+URI: `fingers://example.com/alice@example.net`
 
-Request sent: `alice@people<CRLF>`
+Request sent: `alice@example.net`
 
-### Multi-segment path
+### Multi-relay request
 
-URI: `fingers://example.com/host2/host1/alice`
+URI: `fingers://example.com/alice@example.net@example.org`
 
-Request sent: `alice@host1@host2<CRLF>`
+Request sent: `alice@example.net@example.org`
 
 ### Bare flag
 
 URI: `fingers://example.com/alice?PLAN`
 
-Request sent: `/PLAN alice<CRLF>`
+Request sent: `/PLAN alice`
 
 ### Variable flag
 
 URI: `fingers://example.com/alice?mode=full`
 
-Request sent: `/mode=full alice<CRLF>`
+Request sent: `/mode=full alice`
 
-### Multiple flags
+### Multiple flags with relay target
 
-URI: `fingers://example.com/alice?PLAN&mode=full`
+URI: `fingers://example.com/alice@example.net?PLAN&mode=full`
 
-Request sent: `/PLAN /mode=full alice<CRLF>`
+Request sent: `/PLAN /mode=full alice@example.net`
 
 ## 19. Summary
 
