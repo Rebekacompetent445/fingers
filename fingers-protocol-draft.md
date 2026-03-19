@@ -1,4 +1,4 @@
-# fingers Protocol Draft
+# fingers:// Protocol Draft
 
 ## 1. Purpose
 
